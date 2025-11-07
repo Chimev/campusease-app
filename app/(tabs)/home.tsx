@@ -189,7 +189,7 @@ export default function Home() {
                             showsHorizontalScrollIndicator={false}
                             />
                         : <FlatList
-                            data={recentListing}
+                            data={recentListing.slice(0, 3)}
                             renderItem={({ item }) => <ListingCard item={item} width={Dimensions.get('window').width * 0.6} />} 
                             keyExtractor={item => item._id}
                             horizontal

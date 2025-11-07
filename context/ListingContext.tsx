@@ -24,6 +24,7 @@ export type Listing = {
     level?: string;
     gender?: string;
     isFavorite?: string;
+    createdAt?: any;
 }
 
 type ListingType = {
@@ -50,7 +51,7 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
     if (user?.school) setInstitution(user?.school); 
     }, [user?.school]);
     
-
+    //Fetch listings
    useEffect(() => {
      if (!category && !institution) {
       setIsLoading(true);
@@ -71,12 +72,11 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
             setIsLoading(false);
         }
     }
-
         fetchListings();
     }, [category, institution]);
 
 
-
+    //fetch recent listings
     useEffect(() => {
         if(!institution) return;
         
@@ -84,9 +84,8 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
         setIsLoading(true);
         const noCategory = ""
         try {
-            console.log("sch",institution, category)
             const data = await getListings(noCategory, institution)
-            setRecentListing(data.slice(0, 3))
+            setRecentListing(data)
         } catch (error) {
             console.error('Error fetching listings')
         }finally {
@@ -118,3 +117,43 @@ export const useListing = () => {
     if(!context) throw new Error('useListing must be used within the ListingProvider')
     return context;
 }
+
+
+
+
+
+
+//Just keeping this year 
+//this is for geting o nly those that in the current month \
+//this is for scale
+
+// async function fetchRecentListing() {
+//   setIsLoading(true);
+//   const noCategory = "";
+
+//   try {
+//     console.log("sch", institution, category);
+//     const data = await getListings(noCategory, institution);
+
+//     // Get current month and year
+//     const now = new Date();
+//     const currentMonth = now.getMonth(); // 0-indexed
+//     const currentYear = now.getFullYear();
+
+//     // Filter listings created this month
+//     const thisMonthListings = data.filter(item => {
+//       const createdAt = new Date(item.createdAt);
+//       return (
+//         createdAt.getMonth() === currentMonth &&
+//         createdAt.getFullYear() === currentYear
+//       );
+//     });
+
+//     // Keep first 3
+//     setRecentListing(thisMonthListings.slice(0, 3));
+//   } catch (error) {
+//     console.error("Error fetching listings", error);
+//   } finally {
+//     setIsLoading(false);
+//   }
+// }

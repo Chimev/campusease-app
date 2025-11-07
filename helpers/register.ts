@@ -17,7 +17,6 @@ export const registerApi = async(
             body: JSON.stringify({name, phone, email, password, school: schoolInput, role})
         });
 
-        console.log(res)
         return {res}
     } catch (error) {
         console.error("Registration API Error:", error);

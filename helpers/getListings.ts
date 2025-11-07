@@ -30,3 +30,21 @@ export const getListings = async(
         throw error;
     }
 } 
+
+// Alternative: Create a separate function for fetching by ID (recommended)
+export const getListingById = async(id: string) => {
+    try {
+        const url = `${BASE_URL}/api/listings/${id}`;
+        const res = await fetch(url);
+
+        if (!res.ok) {
+            throw new Error(`Failed to fetch listing: ${res.status} ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching listing by ID', error);
+        throw error;
+    }
+}

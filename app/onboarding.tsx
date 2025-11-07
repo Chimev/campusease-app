@@ -8,7 +8,6 @@ export default function Onboarding() {
     useEffect(() => {
         const check = async() => {
             const value = await AsyncStorage.getItem('hasOnboarded');
-        console.log('first', value)
         }
         check()
     }, [])

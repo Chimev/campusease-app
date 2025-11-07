@@ -1,91 +1,211 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
+  FlatList,
+  Image,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
-export default function SelectionInput() {
-  const [selectedValue, setSelectedValue] = useState('');
-  const [isModalVisible, setIsModalVisible] = useState(false);
+export default function SavedScreen() {
+  const [selectedTab, setSelectedTab] = useState('all');
+  
+  const userSchool = 'UNICAL';
 
- const options = [
-    { id: '1', label: 'UNICAL', value: 'unical' },
-    { id: '2', label: 'UNILAG', value: 'unilag' },
-    { id: '3', label: 'LASU', value: 'lasu' },
-    { id: '4', label: 'EBSU', value: 'ebsu' },
-  ]; 
+  // Sample saved listings - would come from API
+  const savedListings: any = [
+    // Uncomment to show listings
+    // {
+    //   id: '1',
+    //   title: 'Modern 2BR Apartment',
+    //   price: '₦150,000',
+    //   location: 'Near Main Gate',
+    //   image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400',
+    //   category: 'Accommodation',
+    //   categoryColor: '#4F46E5',
+    //   savedAt: '2 days ago'
+    // },
+  ];
 
-  const handleSelect = (value: string) => {
-    setSelectedValue(value);
-    setIsModalVisible(false);
-  };
+  const tabs = [
+    { id: 'all', name: 'All', icon: 'apps' },
+    { id: 'accommodation', name: 'Accommodation', icon: 'home' },
+    { id: 'marketplace', name: 'Marketplace', icon: 'storefront' },
+    { id: 'roommate', name: 'Roommates', icon: 'people' },
+    { id: 'services', name: 'Services', icon: 'construct' }
+  ];
 
-  const selectedLabel = options.find(opt => opt.value === selectedValue)?.label || 'Select an option';
+  const filteredListings = selectedTab === 'all' 
+    ? savedListings 
+    : savedListings.filter((item: any) => item.category.toLowerCase() === selectedTab);
 
-  return (
-    <View>
-      {/* Selection Button */}
+  const renderListingItem = ({ item }: any) => (
+    <TouchableOpacity
+      className="bg-white rounded-2xl mb-4 overflow-hidden shadow-sm"
+      activeOpacity={0.8}
+    >
+      <View className="flex-row">
+        <Image
+          source={{ uri: item.image }}
+          className="w-28 h-28"
+          resizeMode="cover"
+        />
+        
+        <View className="flex-1 p-4">
+          <View className="flex-row items-start justify-between mb-2">
+            <Text className="text-base font-bold flex-1" numberOfLines={2}>
+              {item.title}
+            </Text>
+            <TouchableOpacity className="ml-2" activeOpacity={0.7}>
+              <Ionicons name="heart" size={20} color="#EF4444" />
+            </TouchableOpacity>
+          </View>
+          
+          <Text className="text-secondary text-lg font-bold mb-2">{item.price}</Text>
+          
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center flex-1">
+              <Ionicons name="location-outline" size={14} color="#9CA3AF" />
+              <Text className="text-gray-500 ml-1 text-sm">{item.location}</Text>
+            </View>
+            <Text className="text-gray-400 text-xs">{item.savedAt}</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderEmptyState = () => (
+    <View className="flex-1 items-center justify-center px-6 py-20">
+      <View className="bg-gray-100 w-32 h-32 rounded-full items-center justify-center mb-6">
+        <Ionicons name="heart-outline" size={64} color="#9CA3AF" />
+      </View>
+      
+      <Text className="text-2xl font-bold text-gray-800 mb-3 text-center">
+        No Saved Items
+      </Text>
+      <Text className="text-gray-500 text-center mb-8 leading-6">
+        Start saving listings you're interested in. They'll appear here for easy access later.
+      </Text>
+
       <TouchableOpacity
-        onPress={() => setIsModalVisible(true)}
-        className="bg-white border border-gray-200 rounded-xl px-4 py-4 flex-row items-center justify-between"
-        activeOpacity={0.7}
+        className="bg-secondary rounded-2xl px-8 py-4"
+        activeOpacity={0.8}
       >
-        <Text className={selectedValue ? 'text-gray-900' : 'text-gray-400'}>
-          {selectedLabel}
-        </Text>
-        <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
+        <Text className="text-white font-bold text-base">Browse Listings</Text>
       </TouchableOpacity>
 
-      {/* Modal with Options */}
-      <Modal
-        visible={isModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setIsModalVisible(false)}
-      >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-3xl max-h-[70%]">
-            {/* Header */}
-            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-              <Text className="text-lg font-bold">Select School</Text>
-              <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#000" />
-              </TouchableOpacity>
+      {/* Tips */}
+      <View className="mt-12 w-full">
+        <Text className="text-gray-700 font-semibold mb-4 text-center">How to save items:</Text>
+        <View className="bg-gray-50 rounded-2xl p-4">
+          <View className="flex-row items-start mb-3">
+            <View className="bg-secondary/10 w-8 h-8 rounded-full items-center justify-center mr-3 mt-0.5">
+              <Text className="text-secondary font-bold">1</Text>
             </View>
+            <Text className="text-gray-600 flex-1">
+              Tap the heart icon on any listing
+            </Text>
+          </View>
+          <View className="flex-row items-start mb-3">
+            <View className="bg-secondary/10 w-8 h-8 rounded-full items-center justify-center mr-3 mt-0.5">
+              <Text className="text-secondary font-bold">2</Text>
+            </View>
+            <Text className="text-gray-600 flex-1">
+              Access your saved items anytime here
+            </Text>
+          </View>
+          <View className="flex-row items-start">
+            <View className="bg-secondary/10 w-8 h-8 rounded-full items-center justify-center mr-3 mt-0.5">
+              <Text className="text-secondary font-bold">3</Text>
+            </View>
+            <Text className="text-gray-600 flex-1">
+              Compare and contact sellers easily
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
 
-            {/* Options List */}
-            <ScrollView className="px-4">
-              {options.map((option) => (
+  return (
+    <View className="flex-1 bg-gray-50">
+      {/* Header */}
+      <View className="bg-secondary pt-12 pb-6 px-4">
+        <View className="flex-row items-center justify-between mb-4">
+          <View>
+            <Text className="text-white text-2xl font-bold">Saved</Text>
+            <Text className="text-white/70 text-sm">Your bookmarked listings</Text>
+          </View>
+          
+          <View className="bg-white/20 w-12 h-12 rounded-full items-center justify-center">
+            <Ionicons name="heart" size={24} color="white" />
+          </View>
+        </View>
+
+        {/* School Badge */}
+        <View className="bg-white/20 rounded-full px-4 py-2 self-start">
+          <View className="flex-row items-center">
+            <Ionicons name="school" size={14} color="white" />
+            <Text className="text-white font-semibold ml-2 text-sm">{userSchool}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Tabs */}
+      {savedListings.length > 0 && (
+        <View className="px-4 py-4">
+          <FlatList
+            data={tabs}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => {
+              const isSelected = selectedTab === item.id;
+              return (
                 <TouchableOpacity
-                  key={option.id}
-                  onPress={() => handleSelect(option.value)}
-                  className={`py-4 border-b border-gray-100 flex-row items-center justify-between ${
-                    selectedValue === option.value ? 'bg-secondary/5' : ''
+                  onPress={() => setSelectedTab(item.id)}
+                  className={`mr-3 px-4 py-2 rounded-full flex-row items-center ${
+                    isSelected ? 'bg-secondary' : 'bg-white border border-gray-200'
                   }`}
                   activeOpacity={0.7}
                 >
-                  <Text
-                    className={`text-base ${
-                      selectedValue === option.value
-                        ? 'text-secondary font-semibold'
-                        : 'text-gray-700'
-                    }`}
-                  >
-                    {option.label}
+                  <Ionicons 
+                    name={item.icon as any} 
+                    size={16} 
+                    color={isSelected ? 'white' : '#6B7280'} 
+                  />
+                  <Text className={`font-semibold ml-2 ${isSelected ? 'text-white' : 'text-gray-700'}`}>
+                    {item.name}
                   </Text>
-                  {selectedValue === option.value && (
-                    <Ionicons name="checkmark-circle" size={20} color="#4F46E5" />
-                  )}
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
+              );
+            }}
+            keyExtractor={(item) => item.id}
+          />
         </View>
-      </Modal>
+      )}
+
+      {/* Listings or Empty State */}
+      {savedListings.length === 0 ? (
+        renderEmptyState()
+      ) : (
+        <FlatList
+          data={filteredListings}
+          renderItem={renderListingItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}
+          ListEmptyComponent={() => (
+            <View className="items-center py-20">
+              <Ionicons name="funnel-outline" size={48} color="#9CA3AF" />
+              <Text className="text-gray-500 mt-4 text-center">
+                No saved {selectedTab} listings
+              </Text>
+            </View>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 }

@@ -21,7 +21,7 @@ const categoryObj = categories.find(cat => cat.id === item.category)?.bgColor
         <View style={{width, marginRight: 16, marginBottom: 10}}>
             <Link asChild href={{
                 pathname: '/category/details/[id]',
-                params: {id : '1'}
+                params: {id : item._id}
             }}>
                 <TouchableOpacity 
                 className={` rounded-2xl overflow-hidden bg-white shadow-sm `}

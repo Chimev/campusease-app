@@ -1,18 +1,20 @@
+import { ListingCard } from '@/components/ui/ListingCard';
 import { useAuth } from '@/context/AuhContext';
+import { useListing } from '@/context/ListingContext';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import {
-    FlatList,
-    Image,
-    Text,
-    TouchableOpacity,
-    View
+  FlatList,
+  Image,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export default function RecentListingsScreen() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  // const [selectedCategory, setSelectedCategory] = useState('all');
   const { user } = useAuth();
+  const { recentListing } = useListing()
 
   // Sample recent listings - would come from API sorted by date
   const recentListings = [
@@ -106,17 +108,17 @@ export default function RecentListingsScreen() {
     }
   ];
 
-  const categories = [
-    { id: 'all', name: 'All', icon: 'apps' },
-    { id: 'accommodation', name: 'Accommodation', icon: 'home' },
-    { id: 'marketplace', name: 'Marketplace', icon: 'storefront' },
-    { id: 'roommate', name: 'Roommates', icon: 'people' },
-    { id: 'services', name: 'Services', icon: 'construct' }
-  ];
+  // const categories = [
+  //   { id: 'all', name: 'All', icon: 'apps' },
+  //   { id: 'accommodation', name: 'Accommodation', icon: 'home' },
+  //   { id: 'marketplace', name: 'Marketplace', icon: 'storefront' },
+  //   { id: 'roommate', name: 'Roommates', icon: 'people' },
+  //   { id: 'services', name: 'Services', icon: 'construct' }
+  // ];
 
-  const filteredListings = selectedCategory === 'all' 
-    ? recentListings 
-    : recentListings.filter(item => item.category.toLowerCase() === selectedCategory);
+  // const filteredListings = selectedCategory === 'all' 
+  //   ? recentListings 
+  //   : recentListings.filter(item => item.category.toLowerCase() === selectedCategory);
 
   const renderListingItem = ({ item }: any) => (
     <TouchableOpacity
@@ -208,7 +210,7 @@ export default function RecentListingsScreen() {
       </View>
 
       {/* Category Filters */}
-      <View className="px-4 py-4">
+      {/* <View className="px-4 py-4">
         <FlatList
           data={categories}
           horizontal
@@ -236,7 +238,7 @@ export default function RecentListingsScreen() {
           }}
           keyExtractor={(item) => item.id}
         />
-      </View>
+      </View> */}
 
       {/* Info Banner */}
       <View className="px-4 mb-4">
@@ -251,20 +253,20 @@ export default function RecentListingsScreen() {
       </View>
 
       {/* Listings Count */}
-      <View className="px-4 mb-3">
+      {/* <View className="px-4 mb-3">
         <Text className="text-gray-600 text-sm">
           Showing {filteredListings.length} recent listing{filteredListings.length !== 1 ? 's' : ''}
         </Text>
-      </View>
+      </View> */}
 
       {/* Recent Listings */}
       <FlatList
-        data={filteredListings}
-        renderItem={renderListingItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}
-        showsVerticalScrollIndicator={false}
-      />
+        data={recentListing}
+        renderItem={({ item }) => <ListingCard item={item} width={'100%'} />} 
+        keyExtractor={item => item._id}
+        contentContainerStyle={{paddingHorizontal: 16}}
+        showsHorizontalScrollIndicator={false}
+        />
     </View>
   );
 }

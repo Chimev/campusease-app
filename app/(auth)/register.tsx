@@ -110,7 +110,6 @@ export default function Register() {
     try {
       const response = await registerApi(name, phone, email, password, schoolInput, role);
 
-      console.log(response.res?.status)
 
       if(response.res?.status === 400){
         console.log("This email is already registered")
