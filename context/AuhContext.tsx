@@ -34,6 +34,8 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     const [token, setToken] = useState<string|null>(null) // Changed from ''
     const [schools, setSchools] = useState([])
 
+
+
     useEffect(() => {
         const checkAuth = async() => {
             try {
@@ -53,6 +55,7 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
         checkAuth();
     }, []);
 
+    // fetchSchools
     useEffect(() => {
     const fetchSchools = async() => {
         try {

@@ -1,3 +1,5 @@
+
+import { ListingFilter } from '@/components/ui/filter/ListingFilter';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
@@ -16,25 +18,18 @@ export default function SavedScreen() {
   // Sample saved listings - would come from API
   const savedListings: any = [
     // Uncomment to show listings
-    // {
-    //   id: '1',
-    //   title: 'Modern 2BR Apartment',
-    //   price: '₦150,000',
-    //   location: 'Near Main Gate',
-    //   image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400',
-    //   category: 'Accommodation',
-    //   categoryColor: '#4F46E5',
-    //   savedAt: '2 days ago'
-    // },
+    {
+      id: '1',
+      title: 'Modern 2BR Apartment',
+      price: '₦150,000',
+      location: 'Near Main Gate',
+      image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400',
+      category: 'Accommodation',
+      categoryColor: '#4F46E5',
+      savedAt: '2 days ago'
+    },
   ];
 
-  const tabs = [
-    { id: 'all', name: 'All', icon: 'apps' },
-    { id: 'accommodation', name: 'Accommodation', icon: 'home' },
-    { id: 'marketplace', name: 'Marketplace', icon: 'storefront' },
-    { id: 'roommate', name: 'Roommates', icon: 'people' },
-    { id: 'services', name: 'Services', icon: 'construct' }
-  ];
 
   const filteredListings = selectedTab === 'all' 
     ? savedListings 
@@ -155,35 +150,7 @@ export default function SavedScreen() {
 
       {/* Tabs */}
       {savedListings.length > 0 && (
-        <View className="px-4 py-4">
-          <FlatList
-            data={tabs}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => {
-              const isSelected = selectedTab === item.id;
-              return (
-                <TouchableOpacity
-                  onPress={() => setSelectedTab(item.id)}
-                  className={`mr-3 px-4 py-2 rounded-full flex-row items-center ${
-                    isSelected ? 'bg-secondary' : 'bg-white border border-gray-200'
-                  }`}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons 
-                    name={item.icon as any} 
-                    size={16} 
-                    color={isSelected ? 'white' : '#6B7280'} 
-                  />
-                  <Text className={`font-semibold ml-2 ${isSelected ? 'text-white' : 'text-gray-700'}`}>
-                    {item.name}
-                  </Text>
-                </TouchableOpacity>
-              );
-            }}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
+          <ListingFilter  selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       )}
 
       {/* Listings or Empty State */}

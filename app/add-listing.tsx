@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 
 
-const AccommodationOptions = [
+export const AccommodationOptions = [
     { id: '1', label: '4 Bedroom', value: '4 Bedroom' },
     { id: '2', label: '3 Bedroom', value: '3 Bedroom' },
     { id: '3', label: '2 Bedroom', value: '2 Bedroom' },
@@ -265,7 +265,7 @@ export default function AddListingScreen() {
           }
 
           {
-            category === 'roommate' && (
+            category === 'roommates' && (
               <View>
                 {/* Name */}
                 <View>

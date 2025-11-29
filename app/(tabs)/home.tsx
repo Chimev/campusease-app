@@ -4,91 +4,13 @@ import { categories } from "@/constant/categories";
 import { useAuth } from "@/context/AuhContext";
 import { useListing } from "@/context/ListingContext";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { Dimensions, FlatList, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 
- const recentListings = [
-    {
-      id: '1',
-      title: 'Modern 2BR Apartment',
-      price: 150000,
-      campus: 'Near Main Gate',
-      image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400',
-      category: 'accommodation'
-    },
-    {
-      id: '2',
-      title: 'iPhone 13 Pro',
-      price: 320000,
-      campus: 'Hostel Area',
-      image: 'https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=400',
-      category: 'marketplace'
-    },
-    {
-      id: '3',
-      title: 'Looking for Roommate',
-      campus: 'Off-Campus West',
-      image: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=400',
-      category: 'roommate'
-    },
-    {
-      id: '4',
-      title: 'Laundry Service',
-      price: 5000,
-      campus: 'Campus Area',
-      image: 'https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=400',
-      category: 'services'
-    }
-  ];
-
-
-
-
-
-//   const renderdRecentListing = ({item}: any) => {
-//     return (
-//         <TouchableOpacity
-//         className="mr-4 rounded-2xl overflow-hidden bg-white shadow-sm"
-//         style={{ width: 280, elevation: 5 }}
-//         activeOpacity={0.8}
-//         >
-//             <Image
-//             source={{ uri: item.image }}
-//             className="w-full h-40"
-//             resizeMode="cover"
-//             />
-//             <View className="p-4">
-//                 <View className="flex-row justify-between items-start mb-2">
-//                     <Text className="text-lg font-bold flex-1" numberOfLines={1}>
-//                         {item.title}
-//                     </Text>
-//                     <View className="bg-secondary/10 px-2 py-1 rounded-full ml-2">
-//                         <Text className="text-secondary text-xs font-semibold">{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</Text>
-//                     </View>
-//                 </View>
-//                 <Text className="text-secondary text-xl font-bold mb-2">
-//                     {item.price &&  item.price.toLocaleString('en-NG', {
-//                         style: 'currency',
-//                         currency: 'NGN',
-//                         minimumFractionDigits: 0,
-//                     })}
-//                 </Text>
-//                 <View className="flex-row items-center">
-//                     <Ionicons name="location-outline" size={16} color="#9CA3AF" />
-//                     <Text className="text-gray-500 ml-1 text-sm">{item.campus}</Text>
-//                 </View>
-//             </View>
-//         </TouchableOpacity>
-//     )
-//   }
-
 export default function Home() {
     const {user} = useAuth();
-
     const { recentListing, isLoading } = useListing();
-    
-
 
     return (
         <View className="flex-1 bg-gray-50">
@@ -102,14 +24,9 @@ export default function Home() {
                             <Text className="text-white text-2xl font-bold">{user?.name}</Text>
                         </View> 
                         
-                        <View className="flex-row gap-5">
-                            <View className="bg-white/20 p-3 rounded-full">
-                                <Ionicons name="notifications-outline" size={24} color="white" />
-                            </View>
-                            <View className="bg-white/20 p-3 rounded-full">
-                                <Ionicons name="person-circle-outline" size={24} color="white" />
-                            </View>
-                        </View>
+                        <TouchableOpacity onPress={() => router.push('/notification')} className="bg-white/20 p-3 rounded-full">
+                            <Ionicons name="notifications-outline" size={24} color="white" />
+                        </TouchableOpacity>
                     </View>
                     {/* School */}
                     <View className="bg-white/20 rounded-full px-4 py-2 self-start mb-4">
@@ -136,7 +53,7 @@ export default function Home() {
 
                 {/* Category */}
                 <View className="mt-6 px-4">
-                    <Text className="font-bold text-xl mb-4">Categories</Text>
+                    <Text className="font-semibold text-xl mb-4">Categories</Text>
                     <View className="flex-row flex-wrap gap-3">
                         {categories.map(category => (
                             <Link asChild key={category.id}
@@ -146,8 +63,8 @@ export default function Home() {
                                 }}
                             >
                                 <TouchableOpacity key={category.id}
-                                className="flex-1 min-w-[45%] p-4 shadow-sm rounded-2xl"
-                                style={{backgroundColor: category.bgColor, elevation: 5}}
+                                className="flex-1 min-w-[45%] p-4 rounded-2xl"
+                                style={{backgroundColor: category.bgColor}}
                                 activeOpacity={0.7}
                                 >
                                     <View 
@@ -155,7 +72,7 @@ export default function Home() {
                                     style={{backgroundColor: category.color}}>
                                         <Ionicons name={category.icon as any} size={24} color={'white'} />
                                     </View>
-                                    <Text className="font-semibold text-base">{category.name}</Text>
+                                    <Text className="text-base">{category.name}</Text>
                                 </TouchableOpacity>  
                             </Link>
                                                  
@@ -167,7 +84,7 @@ export default function Home() {
                 <View className="mt-8">
                     <View className="flex-row justify-between items-center px-4 mb-4">
                         <View>
-                            <Text className="font-bold text-xl mb-4">Recent Listings</Text>
+                            <Text className="font-semibold text-xl mb-4">Recent Listings</Text>
                             <Text className="-mt-4 text-sm">Just posted in {user?.school}</Text>
                         </View>
                         <Link asChild href={'/recent-listings'}>
@@ -238,7 +155,7 @@ export default function Home() {
                     { icon: 'search', title: 'Browse Listings', desc: 'Find what you need in your campus' },
                     { icon: 'chatbubbles', title: 'Connect & Enjoy', desc: 'Contact vendors directly' }
                     ].map((step, index) => (
-                    <View key={index} className="bg-white rounded-2xl p-4 flex-row items-center shadow-sm">
+                    <View key={index} className="bg-white rounded-2xl p-4 flex-row items-center">
                         <View className="bg-secondary/10 w-12 h-12 rounded-full items-center justify-center mr-4">
                         <Ionicons name={step.icon as any} size={24} color="#4F46E5" />
                         </View>

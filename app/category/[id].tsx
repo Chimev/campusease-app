@@ -1,5 +1,12 @@
+import { AccommodationFilter } from '@/components/ui/filter/AccommodationFilter';
+import { MarketplaceFitler } from '@/components/ui/filter/MarketplaceFilter';
+import { RoommateFilter } from '@/components/ui/filter/RoommatesFilter';
+import { ServiceFilter } from '@/components/ui/filter/ServiceFilter';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { ListingCardSkeleton } from '@/components/ui/ListingCardSkeleton';
+import AccommodationPreferenceForm from '@/components/ui/notification/AccommodationPreferenceForm';
+import ModalNotification from '@/components/ui/notification/ModalNotification';
+import NotifyMe from '@/components/ui/notification/NotifyMe';
 import { categories } from '@/constant/categories';
 import { useAuth } from '@/context/AuhContext';
 import { Listing, useListing } from '@/context/ListingContext';
@@ -9,7 +16,6 @@ import { useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
-  Modal,
   Text,
   TextInput,
   TouchableOpacity,
@@ -17,6 +23,8 @@ import {
 } from 'react-native';
 
 export default function CategoryScreen() {
+  const [isAccommodationModal, setIsAccommodationModal] = useState(false)
+  const [isMarketplaceModal, setIsMarketplaceModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('');
   const [isNotifyModalVisible, setIsNotifyModalVisible] = useState(false);
   const [isNotificationActive, setIsNotificationActive] = useState(false);
@@ -27,27 +35,35 @@ export default function CategoryScreen() {
   const { user } = useAuth()
   const { setCategory, listings, isLoading } = useListing()
 
+  const [selectedTab, setSelectedTab] = useState<string | null>(null)
+  const icon = categories.find(icon => id === icon.name)?.icon || ''
+
+  const [preferenceForm, setPreferenceForm] = useState(false)
+
  useEffect(() => {
   if (id) setCategory(id.toString().toLowerCase());
 }, [id]);
 
-
-
-
-
-  const filters = ['All', '1 Bedroom', '2 Bedroom', '3+ Bedroom', 'Self-Contained', 'Shared'];
 
   const handleNotificationSetup = () => {
     setIsNotifyModalVisible(true);
   };
 
   const handleEnableNotification = () => {
+    if(id === 'Accommodation'){
+      
+      setPreferenceForm(true)
+      setIsNotifyModalVisible(false);
+    }else{
     setIsNotificationActive(true);
     setIsNotifyModalVisible(false);
     Alert.alert(
       'Notifications Enabled! 🔔',
       `You'll be notified when new ${id} listings are posted in ${user?.school}.`
     );
+    }
+
+    
   };
 
   const handleDisableNotification = () => {
@@ -64,9 +80,6 @@ export default function CategoryScreen() {
       ]
     );
   };
-
-  const icon = categories.find(icon => id === icon.name)?.icon || ''
- 
 
   const renderEmptyState = () => (
     <View className="items-center justify-center py-12 px-6">
@@ -113,20 +126,7 @@ export default function CategoryScreen() {
           </View>
 
           {/* Notification Bell */}
-          <TouchableOpacity
-            onPress={isNotificationActive ? handleDisableNotification : handleNotificationSetup}
-            className="p-2"
-            activeOpacity={0.7}
-          >
-            {isNotificationActive ? (
-              <View className="relative">
-                <Ionicons name="notifications" size={24} color="white" />
-                <View className="absolute -top-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-secondary" />
-              </View>
-            ) : (
-              <Ionicons name="notifications-outline" size={24} color="white" />
-            )}
-          </TouchableOpacity>
+          <NotifyMe handleDisableNotification={handleDisableNotification} handleNotificationSetup={handleNotificationSetup} isNotificationActive={isNotificationActive} id={id}/>
         </View>
 
         {/* School Badge */}
@@ -156,36 +156,14 @@ export default function CategoryScreen() {
       </View>
 
       {/* Filters */}
-      <View className="px-4 py-4">
-        <FlatList
-          data={filters}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => {
-            const isSelected = selectedFilters.includes(item);
-            return (
-              <TouchableOpacity
-                onPress={() => {
-                  if (isSelected) {
-                    setSelectedFilters(selectedFilters.filter(f => f !== item));
-                  } else {
-                    setSelectedFilters([...selectedFilters, item]);
-                  }
-                }}
-                className={`mr-3 px-4 py-2 rounded-full ${
-                  isSelected ? 'bg-secondary' : 'bg-white border border-gray-200'
-                }`}
-                activeOpacity={0.7}
-              >
-                <Text className={`font-semibold ${isSelected ? 'text-white' : 'text-gray-700'}`}>
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            );
-          }}
-          keyExtractor={(item) => item}
-        />
+      <View>
+         {id === 'Accommodation' && <AccommodationFilter setSelectedTab={setSelectedTab} selectedTab={selectedTab} isAccommodationModal={isAccommodationModal} setIsAccommodationModal={setIsAccommodationModal} />}
+
+      { id === 'Roommates' && <RoommateFilter selectedTab={selectedTab} />}
+      { id === 'Services' && <ServiceFilter selectedTab={selectedTab} />}
+      { id === 'Marketplace' && <MarketplaceFitler setSelectedTab={setSelectedTab}  selectedTab={selectedTab} setIsMarketplaceModal={setIsMarketplaceModal} isMarketplaceModal={isMarketplaceModal} />}
       </View>
+     
 
       {/* Listings */}
       {
@@ -212,72 +190,13 @@ export default function CategoryScreen() {
       
 
       {/* Notification Setup Modal */}
-      <Modal
-        visible={isNotifyModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsNotifyModalVisible(false)}
-      >
-        <View className="flex-1 bg-black/50 justify-center items-center px-6">
-          <View className="bg-white rounded-3xl p-6 w-full max-w-sm">
-            {/* Icon */}
-            <View className="items-center mb-4">
-              <View className="bg-secondary/10 w-20 h-20 rounded-full items-center justify-center mb-4">
-                <Ionicons name="notifications" size={40} color="#4F46E5" />
-              </View>
-              <Text className="text-2xl font-bold text-center mb-2">
-                Get Notified
-              </Text>
-              <Text className="text-gray-500 text-center">
-                Receive instant notifications when new {id} listings are posted in {user?.school}
-              </Text>
-            </View>
-
-            {/* Features */}
-            <View className="bg-gray-50 rounded-2xl p-4 mb-6">
-              <View className="flex-row items-center mb-3">
-                <View className="bg-green-100 w-8 h-8 rounded-full items-center justify-center mr-3">
-                  <Ionicons name="checkmark" size={16} color="#10B981" />
-                </View>
-                <Text className="text-gray-700 flex-1">Instant push notifications</Text>
-              </View>
-              <View className="flex-row items-center mb-3">
-                <View className="bg-green-100 w-8 h-8 rounded-full items-center justify-center mr-3">
-                  <Ionicons name="checkmark" size={16} color="#10B981" />
-                </View>
-                <Text className="text-gray-700 flex-1">Be the first to know</Text>
-              </View>
-              <View className="flex-row items-center">
-                <View className="bg-green-100 w-8 h-8 rounded-full items-center justify-center mr-3">
-                  <Ionicons name="checkmark" size={16} color="#10B981" />
-                </View>
-                <Text className="text-gray-700 flex-1">Turn off anytime</Text>
-              </View>
-            </View>
-
-            {/* Buttons */}
-            <TouchableOpacity
-              onPress={handleEnableNotification}
-              className="bg-secondary rounded-2xl py-4 mb-3"
-              activeOpacity={0.8}
-            >
-              <Text className="text-white text-center font-bold text-lg">
-                Enable Notifications
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setIsNotifyModalVisible(false)}
-              className="py-3"
-              activeOpacity={0.7}
-            >
-              <Text className="text-gray-500 text-center font-semibold">
-                Maybe Later
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <ModalNotification 
+      handleEnableNotification={handleEnableNotification} 
+      id={id} 
+      isNotifyModalVisible={isNotifyModalVisible} 
+      setIsNotifyModalVisible={setIsNotifyModalVisible} 
+      user={user} 
+      />
 
       {/* Active Notification Banner */}
       {isNotificationActive && (
@@ -291,6 +210,11 @@ export default function CategoryScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Preference */}
+      {
+        preferenceForm && <AccommodationPreferenceForm setPreferenceForm={setPreferenceForm}  />
+      }
     </View>
   );
 }

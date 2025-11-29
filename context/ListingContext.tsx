@@ -1,4 +1,5 @@
 import { getListings } from "@/helpers/getListings";
+import { userListings } from "@/helpers/userListings";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuhContext";
 
@@ -34,6 +35,7 @@ type ListingType = {
     category: any;
     isLoading: boolean;
     recentListing:any[];
+    myListings:any[];
 }
 
 const ListingContext = createContext<ListingType | null>(null)
@@ -43,9 +45,27 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
     const [category, setCategory] = useState('');
     const [institution, setInstitution] = useState<any>('');
     const [isLoading, setIsLoading] = useState(false);;
+    const [myListings, setMyListings] =  useState([])
     const [recentListing, setRecentListing] = useState([])
 
     const { user } = useAuth();
+
+    // userListing
+    useEffect(() => {
+        if (!user?.email) return;
+        const fetchUserListings = async() => {
+            try {
+                setIsLoading(true)
+                const res = await userListings(user?.email as string);
+                setMyListings(res)
+            } catch (error) {
+                console.error(error)
+            }finally{
+                setIsLoading(false)
+            }
+        }
+        fetchUserListings()
+    },[user])
 
     useEffect(() => {
     if (user?.school) setInstitution(user?.school); 
@@ -96,10 +116,13 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
         fetchRecentListing();
     }, [institution])
 
+    
+
     const value = {
         category,
         listings,
         recentListing,
+        myListings,
         setCategory,
         setInstitution,
         isLoading

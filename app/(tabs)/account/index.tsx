@@ -1,4 +1,5 @@
 import { useAuth } from '@/context/AuhContext';
+import { useListing } from '@/context/ListingContext';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
@@ -17,6 +18,7 @@ export default function AccountScreen() {
   const [emailNotifications, setEmailNotifications] = useState(true);
 
   const {user, logout} = useAuth();
+  const {myListings, isLoading} = useListing()
 
   const handleClearStorage = async () => {
       Alert.alert(
@@ -46,7 +48,7 @@ export default function AccountScreen() {
 
 
   const stats = [
-    { label: 'Active Listings', value: '3', icon: 'list', color: '#4F46E5' },
+    { label: 'Active Listings', value: myListings.length, icon: 'list', color: '#4F46E5' },
     { label: 'Saved Items', value: '12', icon: 'heart', color: '#EC4899' },
     { label: 'Messages', value: '8', icon: 'chatbubbles', color: '#10B981' }
   ];
@@ -58,7 +60,7 @@ export default function AccountScreen() {
       subtitle: 'View and manage your posts',
       icon: 'list',
       color: '#4F46E5',
-      onPress: () => Alert.alert('My Listings', 'View your listings')
+      onPress: () => router.push('/(tabs)/account/my-listings')
     },
     {
       id: '2',
@@ -82,7 +84,7 @@ export default function AccountScreen() {
       subtitle: 'Update your information',
       icon: 'person',
       color: '#F59E0B',
-      onPress: () => Alert.alert('Edit Profile', 'Edit your profile')
+      onPress: () => router.push('/(tabs)/account/edit-profile')
     }
   ];
 
@@ -94,7 +96,7 @@ export default function AccountScreen() {
       icon: 'notifications',
       hasSwitch: true,
       value: notificationsEnabled,
-      onToggle: setNotificationsEnabled
+      onxToggle: setNotificationsEnabled
     },
     {
       id: '2',
@@ -166,7 +168,7 @@ export default function AccountScreen() {
 
         {/* Stats Cards */}
         <View className="px-4 -mt-6 mb-6">
-          <View className="bg-white rounded-2xl p-4 shadow-md flex-row justify-around" style={{elevation: 5}}>
+          <View className="bg-white rounded-2xl p-4 shadow-sm flex-row justify-around" style={{elevation: 5}}>
             {stats.map((stat, index) => (
               <View 
                 key={index}
@@ -195,7 +197,7 @@ export default function AccountScreen() {
               <TouchableOpacity
                 key={item.id}
                 onPress={item.onPress}
-                className="bg-white rounded-xl p-4 flex-row items-center shadow-sm"
+                className="bg-white rounded-xl p-4 flex-row items-center "
                 activeOpacity={0.7}
               >
                 <View 
@@ -221,7 +223,7 @@ export default function AccountScreen() {
             {settingsItems.map((item) => (
               <View
                 key={item.id}
-                className="bg-white rounded-xl p-4 flex-row items-center shadow-sm"
+                className="bg-white rounded-xl p-4 flex-row items-center"
               >
                 <View 
                   className="w-12 h-12 rounded-full items-center justify-center mr-4"
