@@ -1,10 +1,11 @@
 
 import { ListingFilter } from '@/components/ui/filter/ListingFilter';
+import { ListingCard } from '@/components/ui/ListingCard';
+import { useListing } from '@/context/ListingContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
   FlatList,
-  Image,
   Text,
   TouchableOpacity,
   View
@@ -12,64 +13,20 @@ import {
 
 export default function SavedScreen() {
   const [selectedTab, setSelectedTab] = useState('all');
-  
+  const {savedListings, listings} = useListing();
   const userSchool = 'UNICAL';
+  
+const favouriteListings = listings.filter(listing =>
+  savedListings.some((fav:any) => fav.listingId === listing._id)
+);
 
-  // Sample saved listings - would come from API
-  const savedListings: any = [
-    // Uncomment to show listings
-    {
-      id: '1',
-      title: 'Modern 2BR Apartment',
-      price: '₦150,000',
-      location: 'Near Main Gate',
-      image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400',
-      category: 'Accommodation',
-      categoryColor: '#4F46E5',
-      savedAt: '2 days ago'
-    },
-  ];
+console.log('dattta',favouriteListings)
+
 
 
   const filteredListings = selectedTab === 'all' 
-    ? savedListings 
-    : savedListings.filter((item: any) => item.category.toLowerCase() === selectedTab);
-
-  const renderListingItem = ({ item }: any) => (
-    <TouchableOpacity
-      className="bg-white rounded-2xl mb-4 overflow-hidden shadow-sm"
-      activeOpacity={0.8}
-    >
-      <View className="flex-row">
-        <Image
-          source={{ uri: item.image }}
-          className="w-28 h-28"
-          resizeMode="cover"
-        />
-        
-        <View className="flex-1 p-4">
-          <View className="flex-row items-start justify-between mb-2">
-            <Text className="text-base font-bold flex-1" numberOfLines={2}>
-              {item.title}
-            </Text>
-            <TouchableOpacity className="ml-2" activeOpacity={0.7}>
-              <Ionicons name="heart" size={20} color="#EF4444" />
-            </TouchableOpacity>
-          </View>
-          
-          <Text className="text-secondary text-lg font-bold mb-2">{item.price}</Text>
-          
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center flex-1">
-              <Ionicons name="location-outline" size={14} color="#9CA3AF" />
-              <Text className="text-gray-500 ml-1 text-sm">{item.location}</Text>
-            </View>
-            <Text className="text-gray-400 text-xs">{item.savedAt}</Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+    ? favouriteListings 
+    : favouriteListings.filter((item: any) => item.category.toLowerCase() === selectedTab);
 
   const renderEmptyState = () => (
     <View className="flex-1 items-center justify-center px-6 py-20">
@@ -159,8 +116,8 @@ export default function SavedScreen() {
       ) : (
         <FlatList
           data={filteredListings}
-          renderItem={renderListingItem}
-          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ListingCard profile={false} item={item} width={'100%'} />}
+          keyExtractor={(item) => item._id}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}
           ListEmptyComponent={() => (
             <View className="items-center py-20">

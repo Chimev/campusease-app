@@ -3,9 +3,9 @@ import { ListingCardSkeleton } from "@/components/ui/ListingCardSkeleton";
 import { categories } from "@/constant/categories";
 import { useAuth } from "@/context/AuhContext";
 import { useListing } from "@/context/ListingContext";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
-import { Dimensions, FlatList, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Dimensions, FlatList, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 
 export default function Home() {
@@ -16,9 +16,9 @@ export default function Home() {
         <View className="flex-1 bg-gray-50">
             <ScrollView  showsVerticalScrollIndicator={false}>
                 {/* Hero section */}
-                <View className="bg-secondary pt-12 pb-6 px-4 rounded-b-3xl">
+                <View className="bg-secondary pt-12 pb-5 px-4 rounded-b-3xl">
                     {/* First layer */}
-                    <View className="flex-row justify-between mb-4">
+                    <View className="flex-row justify-between mb-2">
                         <View>
                             <Text className="text-white/80 text-sm">Welcome back,</Text>
                             <Text className="text-white text-2xl font-bold">{user?.name}</Text>
@@ -29,14 +29,14 @@ export default function Home() {
                         </TouchableOpacity>
                     </View>
                     {/* School */}
-                    <View className="bg-white/20 rounded-full px-4 py-2 self-start mb-4">
+                    <View className="bg-white/20 rounded-full px-4 py-2 self-start">
                         <View className="flex-row items-center">
                             <Ionicons name="school" size={16} color="white" />
                             <Text className="text-white font-semibold ml-2">{user?.school}</Text>
                         </View>
                     </View>
                     {/* search bar */}
-                    <View className="bg-white rounded-2xl flex-row items-center px-4 py-3 shadow-sm">
+                    {/* <View className="bg-white rounded-2xl flex-row items-center px-4 py-3 shadow-sm">
                 <Feather name="search" size={20} color="#9CA3AF" />
                 <TextInput
                 className="flex-1 ml-3 text-base"
@@ -45,10 +45,10 @@ export default function Home() {
                 //   value={searchQuery}
                 //   onChangeText={setSearchQuery}
                 />
-                {/* <TouchableOpacity>
+                <TouchableOpacity>
                 <Ionicons name="options-outline" size={24} color="#4F46E5" />
-                </TouchableOpacity> */}
-            </View>
+                </TouchableOpacity>
+                    </View> */}
                 </View>
 
                 {/* Category */}
@@ -107,7 +107,7 @@ export default function Home() {
                             />
                         : <FlatList
                             data={recentListing.slice(0, 3)}
-                            renderItem={({ item }) => <ListingCard item={item} width={Dimensions.get('window').width * 0.6} />} 
+                            renderItem={({ item }) => <ListingCard profile={false} item={item} width={Dimensions.get('window').width * 0.6} />} 
                             keyExtractor={item => item._id}
                             horizontal
                             contentContainerStyle={{paddingHorizontal: 16}}

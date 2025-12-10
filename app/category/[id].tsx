@@ -1,12 +1,13 @@
+import AccommodationPreferenceForm from '@/components/screens/notification/AccommodationPreferenceForm';
+import ModalNotification from '@/components/screens/notification/ModalNotification';
+import NotifyMe from '@/components/screens/notification/NotifyMe';
+import ThankYouModal from '@/components/screens/notification/ThankYouModal';
 import { AccommodationFilter } from '@/components/ui/filter/AccommodationFilter';
 import { MarketplaceFitler } from '@/components/ui/filter/MarketplaceFilter';
 import { RoommateFilter } from '@/components/ui/filter/RoommatesFilter';
 import { ServiceFilter } from '@/components/ui/filter/ServiceFilter';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { ListingCardSkeleton } from '@/components/ui/ListingCardSkeleton';
-import AccommodationPreferenceForm from '@/components/ui/notification/AccommodationPreferenceForm';
-import ModalNotification from '@/components/ui/notification/ModalNotification';
-import NotifyMe from '@/components/ui/notification/NotifyMe';
 import { categories } from '@/constant/categories';
 import { useAuth } from '@/context/AuhContext';
 import { Listing, useListing } from '@/context/ListingContext';
@@ -29,6 +30,7 @@ export default function CategoryScreen() {
   const [isNotifyModalVisible, setIsNotifyModalVisible] = useState(false);
   const [isNotificationActive, setIsNotificationActive] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [thankYouVisible, setThankYouVisible] = useState(false)
 
   const { id } = useLocalSearchParams();
 
@@ -51,7 +53,6 @@ export default function CategoryScreen() {
 
   const handleEnableNotification = () => {
     if(id === 'Accommodation'){
-      
       setPreferenceForm(true)
       setIsNotifyModalVisible(false);
     }else{
@@ -178,7 +179,7 @@ export default function CategoryScreen() {
           />
         :  <FlatList
         data={listings}
-        renderItem={({ item }) => <ListingCard item={item} width={'100%'} />} 
+        renderItem={({ item }) => <ListingCard profile={false} item={item} width={'100%'} />} 
         keyExtractor={(item: Listing) => item._id}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}
         // Uncomment below to show empty state
@@ -213,7 +214,11 @@ export default function CategoryScreen() {
 
       {/* Preference */}
       {
-        preferenceForm && <AccommodationPreferenceForm setPreferenceForm={setPreferenceForm}  />
+        preferenceForm && <AccommodationPreferenceForm setPreferenceForm={setPreferenceForm}  setThankYouVisible={setThankYouVisible} />
+      }
+
+      {
+        thankYouVisible && <ThankYouModal setThankYouVisible={setThankYouVisible} thankYouVisible={thankYouVisible}  />
       }
     </View>
   );

@@ -1,3 +1,5 @@
+
+
 import { AccommodationOptions } from '@/app/add-listing';
 import { useAuth } from '@/context/AuhContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,16 +14,12 @@ import {
   View
 } from 'react-native';
 
-interface AccommodationPreferenceFormProps {
-  visible: boolean;
-  onClose: () => void;
-  onSave: () => void;
-  userSchool: string;
-}
+
 
 export default function AccommodationPreferenceForm({
   preferenceForm,
   setPreferenceForm,
+  setThankYouVisible
 }: any) {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -60,6 +58,8 @@ export default function AccommodationPreferenceForm({
 
     console.log('Accommodation Preferences:', preferences);
 
+   
+
 
 
     // Clear form
@@ -69,6 +69,9 @@ export default function AccommodationPreferenceForm({
     setAccommodationType('');
     setPreferredCampus('');
     // setMoveInDate('');
+
+    setThankYouVisible(true)
+    setPreferenceForm(false);
   };
 
   return (

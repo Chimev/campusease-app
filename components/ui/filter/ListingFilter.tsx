@@ -4,13 +4,13 @@ import { FlatList, Text, TouchableOpacity, View } from "react-native";
 const tabs = [
     { id: 'all', name: 'All', icon: 'apps' },
     { id: 'accommodation', name: 'Accommodation', icon: 'home' },
-    { id: 'roommate', name: 'Roommates', icon: 'people' },
+    { id: 'roommates', name: 'Roommates', icon: 'people' },
     { id: 'services', name: 'Services', icon: 'construct' },
     { id: 'marketplace', name: 'Marketplace', icon: 'storefront' },
   ];
 
 
-  export const ListingFilter = ({selectedTab, setSelectedTab, setSelectedCategory}:any) => {
+  export const ListingFilter = ({selectedTab, setSelectedTab}:any) => {
 
 
     return(
@@ -23,7 +23,7 @@ const tabs = [
               const isSelected = selectedTab === item.id;
               return (
                 <TouchableOpacity
-                  onPress={() => {setSelectedTab(item.id); setSelectedCategory(item.id)}}
+                  onPress={() => {setSelectedTab(item.id)}}
                   className={`mr-3 px-4 py-2 rounded-full flex-row items-center ${
                     isSelected ? 'bg-secondary' : 'bg-white border border-gray-200'
                   }`}

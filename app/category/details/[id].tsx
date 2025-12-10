@@ -63,9 +63,6 @@ export default function ListingDetailScreen() {
     setCurrentImageIndex(roundIndex);
   };
 
-  const handleSave = () => {
-    setIsSaved(!isSaved);
-  };
 
   const handleShare = () => {
     Alert.alert('Share', 'Share this listing with friends');
@@ -144,7 +141,8 @@ export default function ListingDetailScreen() {
   }
 
   // Ensure images is an array
-  const images = Array.isArray(listing.image) ? listing.image : [];
+  const images = Array.isArray(listing.image) ? listing.image.map(img => img.url) : [];
+  console.log(images)
 
   return (
     <View className="flex-1 bg-white">
@@ -192,17 +190,7 @@ export default function ListingDetailScreen() {
             >
               <Ionicons name="share-outline" size={20} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={handleSave}
-              className="bg-black/50 w-10 h-10 rounded-full items-center justify-center"
-              activeOpacity={0.7}
-            >
-              <Ionicons 
-                name={isSaved ? "heart" : "heart-outline"} 
-                size={20} 
-                color={isSaved ? "#EF4444" : "white"} 
-              />
-            </TouchableOpacity>
+  
           </View>
 
           {/* Image Counter */}
@@ -279,6 +267,20 @@ export default function ListingDetailScreen() {
               <Ionicons name="location" size={20} color="#EF4444" />
               <Text className="text-gray-700 ml-2 flex-1">{listing.campus}</Text>
             </View>
+          )}
+
+          {listing.gender && listing.level && (
+            <View className="mb-6 flex-row gap-10" >
+              <View >
+              <Text className="text-lg font-bold mb-3">Gender</Text>
+              <Text className="text-gray-700 leading-6">{listing.gender}</Text>
+            </View>
+            <View className="">
+              <Text className="text-lg font-bold mb-3">Level</Text>
+              <Text className="text-gray-700 leading-6">{listing.level}</Text>
+            </View>
+            </View>
+            
           )}
 
           {/* Description */}

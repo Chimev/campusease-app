@@ -1,14 +1,9 @@
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
-export const userListings = async(
-    email: string
-) => {
+export const getFavourite = async(email:string) => {
     try {
-        const res = await fetch(`${BASE_URL}/api/listings/user/${email}`);
-        if(res.status === 404) {
-            return [];
-        }
-
+        const res = await fetch(`${BASE_URL}/api/favourite/${email}`);
+        if(!res.ok) throw new Error('Failded to fetch SavedListing');
         const data = res.json();
         return data;
     } catch (error) {

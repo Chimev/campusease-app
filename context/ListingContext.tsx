@@ -1,3 +1,4 @@
+import { getFavourite } from "@/helpers/getFavourite";
 import { getListings } from "@/helpers/getListings";
 import { userListings } from "@/helpers/userListings";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -8,7 +9,12 @@ export type Listing = {
     email?: string;
     name?: string;
     category?: string;
-    image?: string[];
+    image: [
+    {
+      url: string,
+      publicId: string
+    }
+  ];
     institution?:string;
     campus?: string;
     type?: string;
@@ -34,8 +40,17 @@ type ListingType = {
     setInstitution: any;
     category: any;
     isLoading: boolean;
+    setIsLoading: any;
     recentListing:any[];
     myListings:any[];
+    setMyListings: any;
+    setSavedListings:any;
+    savedListings:any;
+    // setRefreshMyListings: any;
+    refetchMyListings: any;
+    // refreshMyListings:any;
+    refetchListings: any;
+    refetchRecentListings: any;
 }
 
 const ListingContext = createContext<ListingType | null>(null)
@@ -47,26 +62,21 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
     const [isLoading, setIsLoading] = useState(false);;
     const [myListings, setMyListings] =  useState([])
     const [recentListing, setRecentListing] = useState([])
+    const [savedListings, setSavedListings] = useState<any[]>([])
+    // const [refreshMyListings, setRefreshMyListings] = useState(false);
 
     const { user } = useAuth();
+
 
     // userListing
     useEffect(() => {
         if (!user?.email) return;
-        const fetchUserListings = async() => {
-            try {
-                setIsLoading(true)
-                const res = await userListings(user?.email as string);
-                setMyListings(res)
-            } catch (error) {
-                console.error(error)
-            }finally{
-                setIsLoading(false)
-            }
-        }
         fetchUserListings()
-    },[user])
+        fetchFavourite();
+    },[user?.email])
 
+  
+    
     useEffect(() => {
     if (user?.school) setInstitution(user?.school); 
     }, [user?.school]);
@@ -79,7 +89,31 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
       setRecentListing([]);
       return;
     }
+        fetchListings();
+    }, [category, institution]);
 
+    //fetch recent listings
+    useEffect(() => {
+        if(!institution) return;
+        fetchRecentListing();
+    }, [institution]);
+
+     
+
+
+
+    // Functions
+    async function fetchUserListings(){
+            try {
+                setIsLoading(true)
+                const res = await userListings(user?.email as string);
+                setMyListings(res)
+            } catch (error) {
+                console.error(error)
+            }finally{
+                setIsLoading(false)
+            }
+    }
     async function fetchListings  () {
         setIsLoading(true);
         try {
@@ -92,40 +126,51 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
             setIsLoading(false);
         }
     }
-        fetchListings();
-    }, [category, institution]);
-
-
-    //fetch recent listings
-    useEffect(() => {
-        if(!institution) return;
-        
-       async function fetchRecentListing  () {
+    async function fetchFavourite () {
         setIsLoading(true);
-        const noCategory = ""
         try {
-            const data = await getListings(noCategory, institution)
-            setRecentListing(data)
+            const data = await getFavourite(user?.email as string) 
+            console.log( 'data', data)
+            console.log(data.length)
+            setSavedListings(data)
         } catch (error) {
-            console.error('Error fetching listings')
+            console.error('Error fetching saved listings')
         }finally {
             setIsLoading(false);
         }
-       }
-
-        fetchRecentListing();
-    }, [institution])
-
+    }
+    async function fetchRecentListing  () {
+    setIsLoading(true);
+    const noCategory = ""
+    try {
+        const data = await getListings(noCategory, institution)
+        setRecentListing(data)
+    } catch (error) {
+        console.error('Error fetching listings')
+    }finally {
+        setIsLoading(false);
+    }
+    }
     
+
 
     const value = {
         category,
         listings,
         recentListing,
         myListings,
+        setMyListings,
         setCategory,
         setInstitution,
-        isLoading
+        isLoading,
+        setIsLoading,
+        savedListings,
+        setSavedListings,
+        // setRefreshMyListings,
+        // refreshMyListings,
+        refetchMyListings: fetchUserListings,
+        refetchListings: fetchListings,
+        refetchRecentListings: fetchRecentListing
     }
     
     return (

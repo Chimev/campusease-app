@@ -18,7 +18,7 @@ export default function AccountScreen() {
   const [emailNotifications, setEmailNotifications] = useState(true);
 
   const {user, logout} = useAuth();
-  const {myListings, isLoading} = useListing()
+  const {myListings, savedListings} = useListing()
 
   const handleClearStorage = async () => {
       Alert.alert(
@@ -49,7 +49,7 @@ export default function AccountScreen() {
 
   const stats = [
     { label: 'Active Listings', value: myListings.length, icon: 'list', color: '#4F46E5' },
-    { label: 'Saved Items', value: '12', icon: 'heart', color: '#EC4899' },
+    { label: 'Saved Items', value: savedListings.length, icon: 'heart', color: '#EC4899' },
     { label: 'Messages', value: '8', icon: 'chatbubbles', color: '#10B981' }
   ];
 
@@ -60,7 +60,7 @@ export default function AccountScreen() {
       subtitle: 'View and manage your posts',
       icon: 'list',
       color: '#4F46E5',
-      onPress: () => router.push('/(tabs)/account/my-listings')
+      onPress: () => router.push('/(listings)/my-listings')
     },
     {
       id: '2',

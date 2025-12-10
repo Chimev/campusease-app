@@ -20,6 +20,7 @@ type School = {
 }
 
 export default function EditProfileScreen() {
+
   // User data - would come from auth context
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -29,7 +30,7 @@ export default function EditProfileScreen() {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const {user, schools} = useAuth()
+  const {user, schools, logout} = useAuth()
 
   const filteredSchools = schools.filter(((school: School) => school.school && school.school.toLowerCase().includes(schoolInput.toLowerCase())))
 
@@ -83,7 +84,7 @@ export default function EditProfileScreen() {
         Alert.alert("Name already exist")
       }
       if(response.res?.status === 200){
-        router.replace('/(auth)/login')
+        logout()
       }
     } catch (error) {
       console.error("Error updating user:", error);

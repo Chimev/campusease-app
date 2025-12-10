@@ -20,11 +20,12 @@ export default function RootLayout() {
           headerShown: false
         }}  />
 
-        <Stack.Screen name='recent-listings' options={{
+         <Stack.Screen name='(listings)' options={{
           headerShown: false
         }}  />
 
-        <Stack.Screen name='add-listing' options={{
+        
+         <Stack.Screen name='add-listing' options={{
           presentation: 'modal',
           headerShown: false
         }}  />
@@ -34,10 +35,6 @@ export default function RootLayout() {
         }}  />
 
         <Stack.Screen name='category/details/[id]' options={{
-          headerShown: false
-        }}  />
-
-        <Stack.Screen name='my-listing' options={{
           headerShown: false
         }}  />
 

@@ -1,9 +1,10 @@
-import { categories } from '@/constant/categories';
 import { AccommodationOptions, genderOptions, levelOptions, propertyTypes, serviceOptions } from '@/constant/categoryOptions';
 import { useAuth } from '@/context/AuhContext';
+import { Listing } from '@/context/ListingContext';
+import { getListingById } from '@/helpers/getListings';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -20,19 +21,55 @@ import {
 
 
 
+export default function EditListingScreen() {
+  const {id, category} = useLocalSearchParams<{id: string, category:string}>()
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [listing, setListing] = useState<Listing | null>(null);
 
+  useEffect(() => {
+      if (id) {
+        fetchListingDetails(id);
+      }
+    }, [id]);
 
+  useEffect(() => {
+    if(id){
+        setAccommodationTitle(listing?.accommodationTitle || '')
+        SetAccommodationType(listing?.accommodationType || '')
+        setVideoLink(listing?.videoLink || '')
+        setPrice(listing?.price?.toString() || '')
+        setPhone(listing?.phone?.toString() || '')
+        setCampus(listing?.campus || '')
+        setDescription(listing?.description || '')
+        setName(listing?.roommateName || '')
+        setGender(listing?.gender || '')
+        setService(listing?.service || '')
+        
 
+        
+    }
+  },[listing])
+  
+   async function fetchListingDetails(id: string) {
+    try {
+    setLoading(true);
+    setError(null);
+    const data = await getListingById(id);
+    console.log(data)
+    setListing(data);
+    } catch (error) {
+    console.error('Error finding Details', error);
+    setError('Failed to load listing details');
+    } finally {
+    setLoading(false);
+    }
+  }
 
-
-
-
-export default function AddListingScreen() {
-  const [category, setCategory] = useState('');
 
  // Accommodations
   const [isAccommodationModalVisible, setIsAccommodationModalVisible] = useState(false);
-  const [title, setTitle] = useState('');
+  const [AccommodationTitle, setAccommodationTitle] = useState('');
   const [accommodationType, SetAccommodationType] = useState('')
 
   //Roommates
@@ -45,7 +82,7 @@ export default function AddListingScreen() {
   //Services
   const [isServiceModalVisible, setIsServiceModalVisible] = useState(false)
   const [service, setService] = useState('')
-  
+
   // Marketplace - Added states for property type and specific item
   const [isPropertyTypeModalVisible, setIsPropertyTypeModalVisible] = useState(false);
   const [isPropertyItemModalVisible, setIsPropertyItemModalVisible] = useState(false);
@@ -55,7 +92,7 @@ export default function AddListingScreen() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [campus, setCampus] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
+  const [phone, setPhone] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [videoLink, setVideoLink] = useState('')
  
@@ -67,7 +104,35 @@ export default function AddListingScreen() {
     setIsAccommodationModalVisible(false);
   };
 
-  // Handler for selecting property type in marketplace
+ const campusLocations = user?.school 
+  ? schools.find((s: any) => s.school === user.school)?.campuses || []
+  : [];
+
+  const handleImagePicker = () => {
+    // This would integrate with expo-image-picker
+    Alert.alert('Image Picker', 'Image picker would open here');
+  };
+
+  const handleSubmit = () => {
+    if (!category || !AccommodationTitle || !description || !price || !campus) {
+      Alert.alert('Missing Fields', 'Please fill in all required fields');
+      return;
+    }
+    
+    Alert.alert('Success', 'Your listing has been posted!');
+    // Here you would send the data to your backend
+  };
+
+  
+    // Get unique property types from propertyTypes array
+    const uniquePropertyTypes = [...new Set(propertyTypes.map(p => p.propertyType))];
+
+      // Filter property items based on selected property type
+  const filteredPropertyItems = propertyTypes
+    .filter(p => p.propertyType === selectedPropertyType)
+    .map(p => p.item);
+
+    // Handler for selecting property type in marketplace
   const handlePropertyTypeSelect = (type: string) => {
     setSelectedPropertyType(type);
     setSelectedPropertyItem(''); // Reset item when type changes
@@ -80,100 +145,14 @@ export default function AddListingScreen() {
     setIsPropertyItemModalVisible(false);
   };
 
- const campusLocations = user?.school 
-  ? schools.find((s: any) => s.school === user.school)?.campuses || []
-  : [];
 
-  const schoolType = schools.find((sch: any) => sch.school === user?.school)
-
-  const handleImagePicker = () => {
-    // This would integrate with expo-image-picker
-    Alert.alert('Image Picker', 'Image picker would open here');
-  };
-
-  const handleSubmit = () => {
-    if (!category || !description || !campus) {
-      Alert.alert('Missing Fields', 'Please fill in all required fields');
-      return;
-    }
-
-    // Build the listing data object based on category
-    const listingData: any = {
-      email: user?.email,
-      institutiom: user?.school,
-      type: schoolType,
-      category,
-      description,
-      campus,
-      contactPhone,
-      images, // Will be empty for now as per your request
-    };
-
-    // Add category-specific fields
-    if (category === 'accommodation') {
-      if (!title || !accommodationType || !price) {
-        Alert.alert('Missing Fields', 'Please fill in all required fields for accommodation');
-        return;
-      }
-      listingData.title = title;
-      listingData.accommodationType = accommodationType;
-      listingData.price = price;
-      listingData.videoLink = videoLink;
-    }
-
-    if (category === 'roommates') {
-      if (!name || !gender || !level) {
-        Alert.alert('Missing Fields', 'Please fill in all required fields for roommates');
-        return;
-      }
-      listingData.name = name;
-      listingData.gender = gender;
-      listingData.level = level;
-    }
-
-    if (category === 'services') {
-      if (!service) {
-        Alert.alert('Missing Fields', 'Please select a service type');
-        return;
-      }
-      listingData.service = service;
-    }
-
-    if (category === 'marketplace') {
-      if (!selectedPropertyType || !selectedPropertyItem || !price) {
-        Alert.alert('Missing Fields', 'Please fill in all required fields for marketplace');
-        return;
-      }
-      listingData.propertyType = selectedPropertyType;
-      listingData.propertyItem = selectedPropertyItem;
-      listingData.price = price;
-    }
-    
-    // Console log the complete listing data
-    console.log('=== LISTING SUBMISSION ===');
-    console.log(JSON.stringify(listingData, null, 2));
-    console.log('========================');
-    
-    Alert.alert('Success', 'Your listing has been posted!');
-    // Here you would send the data to your backend
-  };
-
-  // Get unique property types from propertyTypes array
-  const uniquePropertyTypes = [...new Set(propertyTypes.map(p => p.propertyType))];
-
-  // Filter property items based on selected property type
-  const filteredPropertyItems = propertyTypes
-    .filter(p => p.propertyType === selectedPropertyType)
-    .map(p => p.item);
-
-
-  const selectedLabel = AccommodationOptions.find(opt => opt.value === accommodationType)?.label || 'Select an option';
+  const selectedLabel = AccommodationOptions.find(opt => opt.value === accommodationType)?.label ||accommodationType;
 
   const selectedGender = genderOptions.find(opt => opt.value === gender)?.label || 'Select an option';
 
   const selectedLevel = levelOptions.find(opt => opt.value === level)?.label || 'Select an option';
 
-  const selectedService = serviceOptions.find(opt => opt.value === service)?.label || 'Select an option';
+  const selectedService = serviceOptions.find(opt => opt.value === service)?.label || service;
 
   return (
     <KeyboardAvoidingView className='flex-1'
@@ -187,47 +166,14 @@ export default function AddListingScreen() {
             <TouchableOpacity className="p-2" activeOpacity={0.7} onPress={() => router.back()}>
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
-            <Text className="text-white text-xl font-bold">Add Listing</Text>
+            <Text className="text-white text-xl font-bold">Edit Listing</Text>
             <View className="w-8" />
           </View>
         </View>
 
-          {/* FORM */}
+          {/* fORM */}
         <View className="px-4 py-6">
-          {/* Category Selection */}
-          <View className="mb-6">
-            <Text className="text-lg font-bold mb-3">Category *</Text>
-            <View className="flex-row flex-wrap gap-3">
-              {categories.map((cat) => (
-                <TouchableOpacity
-                  key={cat.id}
-                  onPress={() => setCategory(cat.id)}
-                  className={`flex-1 min-w-[45%] rounded-xl p-4 border-2 ${
-                    category === cat.id ? 'border-secondary bg-secondary/5' : 'border-gray-200 bg-white'
-                  }`}
-                  activeOpacity={0.7}
-                >
-                  <View className="flex-row items-center">
-                    <Ionicons 
-                      name={cat.icon as any} 
-                      size={20} 
-                      color={category === cat.id ? cat.color : '#9CA3AF'} 
-                    />
-                    <Text 
-                      className={`ml-2 font-semibold ${
-                        category === cat.id ? 'text-secondary' : 'text-gray-600'
-                      }`}
-                    >
-                      {cat.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-          
-          {
-            category 
+          { category 
             ? (
             <>
           {/* Title */}
@@ -240,8 +186,8 @@ export default function AddListingScreen() {
                 className="text-base"
                 placeholder="e.g., Newly built Selfcon apartment"
                 placeholderTextColor="#9CA3AF"
-                value={title}
-                onChangeText={setTitle}
+                value={AccommodationTitle}
+                onChangeText={setAccommodationTitle}
               />
             </View>
 
@@ -270,7 +216,7 @@ export default function AddListingScreen() {
                   <View className="bg-white rounded-t-3xl max-h-[70%]">
                     {/* Header */}
                     <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-                      <Text className="text-lg font-bold">Select Accommodation Type</Text>
+                      <Text className="text-lg font-bold">Select School</Text>
                       <TouchableOpacity onPress={() => setIsAccommodationModalVisible(false)}>
                         <Ionicons name="close" size={24} color="#000" />
                       </TouchableOpacity>
@@ -309,7 +255,7 @@ export default function AddListingScreen() {
 
             {/* Video Link */}
             <View className="mt-6">
-              <Text className="text-lg font-bold mb-3">Video Link (Optional)</Text>
+              <Text className="text-lg font-bold mb-3">Video Link *</Text>
               <View className="bg-white border border-gray-200 rounded-xl px-4 py-3">
                 <TextInput
                   className="text-base"
@@ -333,7 +279,7 @@ export default function AddListingScreen() {
                   <View className="bg-white border border-gray-200 rounded-xl mb-6 px-4 py-3">
                   <TextInput
                     className="text-base"
-                    placeholder="Enter your name"
+                    placeholder="Enter you name"
                     placeholderTextColor="#9CA3AF"
                     value={name}
                     onChangeText={setName}
@@ -509,7 +455,7 @@ export default function AddListingScreen() {
                         <View className="bg-white rounded-t-3xl max-h-[70%]">
                           {/* Header */}
                           <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-                            <Text className="text-lg font-bold">Select Service</Text>
+                            <Text className="text-lg font-bold">Select Level</Text>
                             <TouchableOpacity onPress={() => setIsServiceModalVisible(false)}>
                               <Ionicons name="close" size={24} color="#000" />
                             </TouchableOpacity>
@@ -525,7 +471,7 @@ export default function AddListingScreen() {
                                   setIsServiceModalVisible(false)
                                 }}
                                 className={`py-4 border-b border-gray-100 flex-row items-center justify-between ${
-                                  service === option.value ? 'bg-secondary/5' : ''
+                                  level === option.value ? 'bg-secondary/5' : ''
                                 }`}
                                 activeOpacity={0.7}
                               >
@@ -684,150 +630,148 @@ export default function AddListingScreen() {
               </View>
             )
           }
+           
 
-
-          {/* Price - Show for accommodation and marketplace */}
-      {
-        (category === 'accommodation' || category === 'marketplace') && <View>
-        <Text className="text-lg font-bold mb-3">Price *</Text>
-        <View className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex-row items-center mb-6">
-          <Text className="text-gray-500 text-lg mr-2">₦</Text>
-          <TextInput
-            className="text-base flex-1"
-            placeholder="e.g., 150000"
-            placeholderTextColor="#9CA3AF"
-            value={price}
-            onChangeText={setPrice}
-            keyboardType="numeric"
-          />
-        </View>
-      </View>
-      }
-      
-      {/* Contact Information */}          
-        <View className="mb-6">
-          <Text className="text-lg font-bold mb-3">Phone Number *</Text>
-          <View className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex-row items-center">
-            <Feather name="phone" size={20} color="#9CA3AF" />
-            <TextInput
-              className="text-base ml-3 flex-1"
-              placeholder="08012345678"
-              placeholderTextColor="#9CA3AF"
-              value={contactPhone}
-              onChangeText={setContactPhone}
-              keyboardType="phone-pad"
-            />
+          {/* Price */}
+          {
+            (category === 'accommodation' || category === 'marketplace') && <View>
+            <Text className="text-lg font-bold mb-3">Price *</Text>
+            <View className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex-row items-center mb-6">
+              <Text className="text-gray-500 text-lg mr-2">₦</Text>
+              <TextInput
+                className="text-base flex-1"
+                placeholder="e.g., 150000"
+                placeholderTextColor="#9CA3AF"
+                value={price}
+                onChangeText={setPrice}
+                keyboardType="numeric"
+              />
+            </View>
           </View>
-        </View>
-
-      {/* Campus */}
-      <View className="mb-6">
-        <Text className="text-lg font-bold mb-3">Campus *</Text>
-        <View className="gap-2">
-          {campusLocations.map((loc: any) => (
-            <TouchableOpacity
-              key={loc}
-              onPress={() => setCampus(loc)}
-              className={`bg-white border rounded-xl px-4 py-3 flex-row items-center justify-between ${
-                campus === loc ? 'border-secondary' : 'border-gray-200'
-              }`}
-              activeOpacity={0.7}
-            >
-              <View className="flex-row items-center">
-                <Ionicons 
-                  name="location-outline" 
-                  size={20} 
-                  color={campus === loc ? '#4F46E5' : '#9CA3AF'} 
+          }
+          
+          {/* Contact Information */}          
+            <View className="mb-6">
+              <Text className="text-lg font-bold mb-3">Phone Number *</Text>
+              <View className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex-row items-center">
+                <Feather name="phone" size={20} color="#9CA3AF" />
+                <TextInput
+                  className="text-base ml-3 flex-1"
+                  placeholder="08012345678"
+                  placeholderTextColor="#9CA3AF"
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType="phone-pad"
                 />
-                <Text 
-                  className={`ml-3 ${
-                    campus === loc ? 'text-secondary font-semibold' : 'text-gray-700'
-                  }`}
-                >
-                  {loc}
-                </Text>
               </View>
-              {campus === loc && (
-                <Ionicons name="checkmark-circle" size={20} color="#4F46E5" />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+            </View>
 
-      
-      {/* Images - Commented out as requested but left in place for future implementation */}
-      {/* 
-      <View className="mb-6">
-        <Text className="text-lg font-bold mb-3">Photos (Optional)</Text>
-        <TouchableOpacity
-          onPress={handleImagePicker}
-          className="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 items-center"
-          activeOpacity={0.7}
-        >
-          <Ionicons name="images-outline" size={48} color="#9CA3AF" />
-          <Text className="text-gray-500 mt-3 font-semibold">Add Photos</Text>
-          <Text className="text-gray-400 text-sm mt-1">Up to 5 images</Text>
-        </TouchableOpacity>
-      </View>
-      */}
-
-      {/* Description */}
-      <View className="mb-6">
-        <Text className="text-lg font-bold mb-3">Description *</Text>
-        <View className="bg-white border border-gray-200 rounded-xl px-4 py-3">
-          <TextInput
-            className="text-base"
-            placeholder="Describe your listing in detail..."
-            placeholderTextColor="#9CA3AF"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-        </View>
-      </View>
-
-      
-
-      {/* Terms */}
-      <View className="bg-blue-50 rounded-xl p-4 mb-6 flex-row">
-        <Ionicons name="information-circle" size={20} color="#3B82F6" />
-        <Text className="text-blue-800 text-sm ml-2 flex-1">
-          By posting, you agree to our terms of service. All listings are subject to review.
-        </Text>
-      </View>
-
-      {/* Submit Button */}
-      <TouchableOpacity
-        onPress={handleSubmit}
-        className="bg-secondary rounded-2xl p-4 shadow-md mb-8"
-        activeOpacity={0.8}
-      >
-        <Text className="text-white text-center text-lg font-bold">
-          Post Listing
-        </Text>
-      </TouchableOpacity>
-            </>
-        ) :
-        (
-            <View className="bg-secondary/5 border border-secondary/20 rounded-2xl p-6 mb-6 items-center">
-          <View className="bg-secondary/10 w-16 h-16 rounded-full items-center justify-center mb-4">
-            <Ionicons name="arrow-up" size={32} color="#4F46E5" />
+          {/* Campus */}
+          <View className="mb-6">
+            <Text className="text-lg font-bold mb-3">Campus *</Text>
+            <View className="gap-2">
+              {campusLocations.map((loc: any) => (
+                <TouchableOpacity
+                  key={loc}
+                  onPress={() => setCampus(loc)}
+                  className={`bg-white border rounded-xl px-4 py-3 flex-row items-center justify-between ${
+                    campus === loc ? 'border-secondary' : 'border-gray-200'
+                  }`}
+                  activeOpacity={0.7}
+                >
+                  <View className="flex-row items-center">
+                    <Ionicons 
+                      name="location-outline" 
+                      size={20} 
+                      color={campus === loc ? '#4F46E5' : '#9CA3AF'} 
+                    />
+                    <Text 
+                      className={`ml-3 ${
+                        campus === loc ? 'text-secondary font-semibold' : 'text-gray-700'
+                      }`}
+                    >
+                      {loc}
+                    </Text>
+                  </View>
+                  {campus === loc && (
+                    <Ionicons name="checkmark-circle" size={20} color="#4F46E5" />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-          <Text className="text-secondary font-bold text-lg mb-2">Choose a Category</Text>
-          <Text className="text-gray-600 text-center text-sm">
-            Select a category above to start creating your listing
-          </Text>
-        </View>
-        )
-      }
-      
-    </View>
-  </ScrollView>
-</View>
-</KeyboardAvoidingView>
-  ) }
 
           
+          {/* Images */}
+          <View className="mb-6">
+            <Text className="text-lg font-bold mb-3">Photos (Optional)</Text>
+            <TouchableOpacity
+              onPress={handleImagePicker}
+              className="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 items-center"
+              activeOpacity={0.7}
+            >
+              <Ionicons name="images-outline" size={48} color="#9CA3AF" />
+              <Text className="text-gray-500 mt-3 font-semibold">Add Photos</Text>
+              <Text className="text-gray-400 text-sm mt-1">Up to 5 images</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Description */}
+          <View className="mb-6">
+            <Text className="text-lg font-bold mb-3">Description *</Text>
+            <View className="bg-white border border-gray-200 rounded-xl px-4 py-3">
+              <TextInput
+                className="text-base"
+                placeholder="Describe your listing in detail..."
+                placeholderTextColor="#9CA3AF"
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+            </View>
+          </View>
+
+          
+
+          {/* Terms */}
+          <View className="bg-blue-50 rounded-xl p-4 mb-6 flex-row">
+            <Ionicons name="information-circle" size={20} color="#3B82F6" />
+            <Text className="text-blue-800 text-sm ml-2 flex-1">
+              By posting, you agree to our terms of service. All listings are subject to review.
+            </Text>
+          </View>
+
+          {/* Submit Button */}
+          <TouchableOpacity
+            onPress={handleSubmit}
+            className="bg-secondary rounded-2xl p-4 shadow-md mb-8"
+            activeOpacity={0.8}
+          >
+            <Text className="text-white text-center text-lg font-bold">
+              Post Listing
+            </Text>
+          </TouchableOpacity>
+                </>
+            ) :
+            (
+                <View className="bg-secondary/5 border border-secondary/20 rounded-2xl p-6 mb-6 items-center">
+              <View className="bg-secondary/10 w-16 h-16 rounded-full items-center justify-center mb-4">
+                <Ionicons name="arrow-up" size={32} color="#4F46E5" />
+              </View>
+              <Text className="text-secondary font-bold text-lg mb-2">Choose a Category</Text>
+              <Text className="text-gray-600 text-center text-sm">
+                Select a category above to start creating your listing
+              </Text>
+            </View>
+            )
+          }
+          
+        </View>
+      </ScrollView>
+    </View>
+    </KeyboardAvoidingView>
+    
+  );
+}

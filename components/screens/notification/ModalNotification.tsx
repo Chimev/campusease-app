@@ -47,7 +47,7 @@ You’ll also get alerted instantly whenever an agent posts a matching apartment
         "Turn off anytime"
       ];
 
-  // 🔹 Dynamic button text
+  // Dynamic button text
   const buttonText = isAccommodation
     ? "Select House Preference"
     : "Enable Notifications";
