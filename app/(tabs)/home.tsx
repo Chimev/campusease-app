@@ -89,32 +89,41 @@ export default function Home() {
                         </View>
                         <Link asChild href={'/recent-listings'}>
                             <TouchableOpacity>
-                            <Text className="text-secondary font-semibold">See All</Text>
+                                <Text className="text-secondary font-semibold">See All</Text>
                             </TouchableOpacity>
                         </Link>
-                        
                     </View>
-                    {
-                        isLoading 
-                        ? <FlatList
+                    
+                    {isLoading ? (
+                        <FlatList
                             data={Array.from({ length: 4 })}
                             renderItem={({ index }) => <ListingCardSkeleton width={Dimensions.get('window').width * 0.6} />}
                             horizontal
                             keyExtractor={(_, index) => index.toString()}
-                            
                             contentContainerStyle={{ paddingHorizontal: 16 }}
                             showsHorizontalScrollIndicator={false}
-                            />
-                        : <FlatList
+                        />
+                    ) : recentListing.length === 0 ? (
+                        // Empty State
+                        <View className="items-center justify-center px-6 py-8">
+                            <View className="bg-gray-100 w-20 h-20 rounded-full items-center justify-center mb-4">
+                                <Ionicons name="time-outline" size={40} color="#9CA3AF" />
+                            </View>
+                            <Text className="text-gray-700 font-semibold text-base mb-2">No Recent Listings</Text>
+                            <Text className="text-gray-500 text-sm text-center">
+                                Latest listings in {user?.school} will appear here
+                            </Text>
+                        </View>
+                    ) : (
+                        <FlatList
                             data={recentListing.slice(0, 3)}
                             renderItem={({ item }) => <ListingCard profile={false} item={item} width={Dimensions.get('window').width * 0.6} />} 
                             keyExtractor={item => item._id}
                             horizontal
                             contentContainerStyle={{paddingHorizontal: 16}}
                             showsHorizontalScrollIndicator={false}
-                            />
-                    }
-                    
+                        />
+                    )}
                 </View>
 
                 {/* Community Stats */}

@@ -1,6 +1,7 @@
 
 import { ListingFilter } from '@/components/ui/filter/ListingFilter';
 import { ListingCard } from '@/components/ui/ListingCard';
+import { useAuth } from '@/context/AuhContext';
 import { useListing } from '@/context/ListingContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
@@ -14,7 +15,8 @@ import {
 export default function SavedScreen() {
   const [selectedTab, setSelectedTab] = useState('all');
   const {savedListings, listings} = useListing();
-  const userSchool = 'UNICAL';
+  const { user } = useAuth()
+  const userSchool = user?.school;
   
 const favouriteListings = listings.filter(listing =>
   savedListings.some((fav:any) => fav.listingId === listing._id)
