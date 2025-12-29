@@ -46,6 +46,10 @@ export default function RootLayout() {
           headerShown: false
         }}  />
 
+        <Stack.Screen name='userProfileScreen/[username]' options={{
+          headerShown: false
+        }}  />
+
       
         </Stack>
       </ListingProvider>

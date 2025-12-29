@@ -9,7 +9,7 @@ import { Dimensions, FlatList, ScrollView, Text, TouchableOpacity, View } from "
 
 
 export default function Home() {
-    const {user} = useAuth();
+    const {user, token} = useAuth();
     const { recentListing, isLoading } = useListing();
 
     return (

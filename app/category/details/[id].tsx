@@ -4,7 +4,7 @@ import { timeAgo } from '@/constant/time';
 import { Listing } from '@/context/ListingContext';
 import { getListingById } from '@/helpers/getListings';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -296,7 +296,10 @@ export default function ListingDetailScreen() {
             <Text className="text-lg font-bold mb-3">
               {(listing.category === 'roommates' && 'Student') || (listing.category === 'accommodation' && 'Agent') || (listing.category === 'marketplace' && 'Seller') || (listing.category === 'services' && 'Vendor')} Information
               </Text>
-            <View className="bg-gray-50 rounded-2xl p-4">
+            <Link href={{
+              pathname: '/userProfileScreen/[username]',
+              params: {username: listing.name as string}
+            }} className="bg-gray-50 rounded-2xl p-4">
               <View className="flex-row items-center mb-4">
                 <View className="bg-secondary/10 w-16 h-16 rounded-full items-center justify-center">
                   <Ionicons name="person" size={32} color="#4F46E5" />
@@ -308,7 +311,7 @@ export default function ListingDetailScreen() {
                   )}
                 </View>
               </View>
-            </View>
+            </Link>
           </View>
 
           {/* Safety Tips */}

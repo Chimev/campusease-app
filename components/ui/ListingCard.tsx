@@ -5,7 +5,7 @@ import { addFavourite } from "@/helpers/addFavourite";
 import { removeFavourite } from "@/helpers/removeFavourite";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type ListingCardProps = {
@@ -13,70 +13,66 @@ type ListingCardProps = {
     width?: any;
     profile: boolean;
     handleDelete?:any;
+    saved?: boolean
 }
 
-export function ListingCard ({item, width, profile, handleDelete}: ListingCardProps) {
+export function ListingCard ({item, width, profile, handleDelete, saved=true}: ListingCardProps) {
     const [isLoading, setIsLoading] = useState(true); 
     const [hasError, setHasError] = useState(false);
     const {savedListings, setSavedListings} = useListing()
     const {user} = useAuth();
     
     // Check if this item is already favorited (boolean, not a function)
-    const isFav = savedListings.some((fav: any) => fav.listingId === item._id);
+   const isFav = useMemo(() => {
+    return savedListings.some((fav: any) => fav.listingId === item._id);
+    }, [savedListings, item._id]);
+
     
     const handleFavourite = async () => {
         const email = user?.email as string;
         const listingId = item._id;
-        
-        console.log('Adding favorite:', { email, listingId });
-        
+
+        // Optimistically update UI
+        setSavedListings((prev: any[]) => [...prev, { listingId, email }]);
+
         try {
             const result = await addFavourite(email, listingId);
-            console.log('Result:', result);
-            
-            if(result.ok){
-                console.log('Success! Updating UI');
-                // Add the item to savedListings immediately
-                setSavedListings((prev: any[]) => {
-                    const newList = [...prev, { listingId: item._id, email }];
-                    console.log('New savedListings:', newList);
-                    return newList;
-                });
-            } else {
-                console.log('API returned not ok');
+
+            if(!result.ok){
+            // Revert if API fails
+            setSavedListings((prev: any[]) =>
+                prev.filter(fav => fav.listingId !== listingId)
+            );
+            console.log('Failed to add favorite on server');
             }
         } catch (error) {
-            console.error('Error adding to saved listing:', error)
+            // Revert on error
+            setSavedListings((prev: any[]) =>
+            prev.filter(fav => fav.listingId !== listingId)
+            );
+            console.error(error);
         }
-    }
+    };
+
 
     const handleFavouriteDelete = async(listingId: string) => {
-    console.log('Attempting to delete:', listingId);
-    const email = user?.email as string
-    
-    try {
-        const res = await removeFavourite(email, listingId);
-        console.log('Delete response:', res); // Check what this shows
-        console.log('res.ok:', res?.ok);
+        console.log('Attempting to delete:', listingId);
+        const email = user?.email as string
+        // Optimistically remove
+            setSavedListings((prev: any[]) =>
+                prev.filter(fav => fav.listingId !== listingId)
+            );
         
-        if(res?.ok){
-            console.log('Delete successful, updating UI');
-            setSavedListings((prev: any[]) => {
-                console.log('Current savedListings:', prev);
-                const newList = prev.filter((fav: any) => {
-                    console.log('Comparing:', fav.listingId, '!==', listingId);
-                    return fav.listingId !== listingId;
-                });
-                console.log('New savedListings after delete:', newList);
-                return newList;
-            });
-        } else {
-            console.log('Delete failed - API returned not ok');
+        try {
+            const res = await removeFavourite(email, listingId);
+            if(!res?.ok){{
+                console.log('Delete failed - API returned not ok');
+                setSavedListings((prev: any[]) => [...prev, { listingId, email }]);
+            }}
+        } catch (error) {
+            console.error('Error Deleting SavedListing', error);
         }
-    } catch (error) {
-        console.error('Error Deleting SavedListing', error);
     }
-}
 
     const categoryObj = categories.find(cat => cat.id === item.category)?.bgColor;
 
@@ -141,7 +137,7 @@ export function ListingCard ({item, width, profile, handleDelete}: ListingCardPr
                 </TouchableOpacity>
             </Link>
             {
-                profile ? (
+                profile && (
                      <View className="flex-row gap-4 absolute bottom-6 right-4 flexx-row justify-end items-end">
                         <Link href={{
                             pathname: '/(listings)/edit-listing',
@@ -157,7 +153,10 @@ export function ListingCard ({item, width, profile, handleDelete}: ListingCardPr
                         </Pressable>
                     </View>
                 )
-                :  (
+                 
+            }
+            {
+                saved &&  (
                     <View className="flex-row gap-4 absolute top-6 right-4 flexx-row justify-end items-end">
                         <Pressable onPress={isFav ? () => handleFavouriteDelete(item._id) : handleFavourite}>
                             <MaterialIcons

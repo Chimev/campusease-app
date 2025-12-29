@@ -1,7 +1,9 @@
+import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import { AccommodationOptions, genderOptions, levelOptions, propertyTypes, serviceOptions } from '@/constant/categoryOptions';
 import { useAuth } from '@/context/AuhContext';
-import { Listing } from '@/context/ListingContext';
+import { Listing, useListing } from '@/context/ListingContext';
 import { getListingById } from '@/helpers/getListings';
+import { updateListing } from '@/helpers/updateListing';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -26,6 +28,8 @@ export default function EditListingScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [listing, setListing] = useState<Listing | null>(null);
+  const {refetchMyListings} = useListing()
+   const { user, schools } = useAuth();
 
   useEffect(() => {
       if (id) {
@@ -94,7 +98,7 @@ export default function EditListingScreen() {
   const [videoLink, setVideoLink] = useState('')
  
 
- const { user, schools } = useAuth();
+
 
  const handleSelect = (value: string) => {
     SetAccommodationType(value);
@@ -110,15 +114,83 @@ export default function EditListingScreen() {
   //   Alert.alert('Image Picker', 'Image picker would open here');
   // };
 
-  const handleSubmit = () => {
-    if (!category || !AccommodationTitle || !description || !price || !campus) {
-      Alert.alert('Missing Fields', 'Please fill in all required fields');
+ const handleSubmit = async () => {
+  setLoading(true)
+  if (!id || !category) {
+    Alert.alert('Error', 'Invalid listing');
+    return;
+  }
+
+  let formData: any = {
+    phone,
+    campus,
+    description,
+  };
+
+  if (category === 'accommodation') {
+    formData = {
+      ...formData,
+      accommodationTitle: AccommodationTitle,
+      accommodationType,
+      videoLink,
+      price: Number(price),
+    };
+  }
+
+  if (category === 'roommates') {
+    formData = {
+      ...formData,
+      roommateName: name,
+      gender,
+      level,
+    };
+  }
+
+  if (category === 'services') {
+    formData = {
+      ...formData,
+      service,
+    };
+  }
+
+  if (category === 'marketplace') {
+    formData = {
+      ...formData,
+      propertyType: selectedPropertyType,
+      item: selectedPropertyItem,
+      price: Number(price),
+    };
+  }
+
+  // Remove empty / undefined fields
+  Object.keys(formData).forEach((key) => {
+    if (
+      formData[key] === '' ||
+      formData[key] === undefined ||
+      formData[key] === null
+    ) {
+      delete formData[key];
+    }
+  });
+
+  try {
+    const { res } = await updateListing(id, formData);
+
+    if (!res || !res.ok) {
+      Alert.alert('Error', 'Failed to update listing');
       return;
     }
-    
-    Alert.alert('Success', 'Your listing has been posted!');
-    // Here you would send the data to your backend
-  };
+
+    Alert.alert('Success', 'Listing updated successfully');
+    await refetchMyListings()
+    router.back();
+  } catch (err) {
+    Alert.alert('Error', 'Something went wrong');
+  }finally{
+    setLoading(false)
+  }
+};
+
 
   
     // Get unique property types from propertyTypes array
@@ -766,6 +838,8 @@ export default function EditListingScreen() {
           }
           
         </View>
+
+        {loading && <FullScreenSpinner />}
       </ScrollView>
     </View>
     </KeyboardAvoidingView>

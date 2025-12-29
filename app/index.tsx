@@ -7,6 +7,8 @@ export default function Index() {
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
   const {isLoading, token} = useAuth()
 
+ 
+
   useEffect(() => {
     const checkOnboarding = async () => {
       const value = await AsyncStorage.getItem("hasOnboarded");

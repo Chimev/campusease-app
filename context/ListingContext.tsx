@@ -130,8 +130,6 @@ export  const ListingProvider = ({children}: {children: React.ReactNode}) => {
         setIsLoading(true);
         try {
             const data = await getFavourite(user?.email as string) 
-            console.log( 'data', data)
-            console.log(data.length)
             setSavedListings(data)
         } catch (error) {
             console.error('Error fetching saved listings')

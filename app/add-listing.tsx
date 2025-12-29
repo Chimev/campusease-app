@@ -1,3 +1,4 @@
+import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import { categories } from '@/constant/categories';
 import { AccommodationOptions, genderOptions, levelOptions, propertyTypes, serviceOptions } from '@/constant/categoryOptions';
 import { useAuth } from '@/context/AuhContext';
@@ -10,7 +11,6 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   FlatList,
   KeyboardAvoidingView,
@@ -64,6 +64,11 @@ export default function AddListingScreen() {
     setLoading(true)
     if (!category || !description || !campus) {
       Alert.alert('Missing Fields', 'Please fill in all required fields');
+      return;
+    }
+    if(!image || image.length < 3){
+      setLoading(false);
+      Alert.alert('Please upload minimum of 3 images')
       return;
     }
 
@@ -262,18 +267,7 @@ const renderImageItem = useCallback(
   [removeImage]
 );
 
-const FullScreenSpinner = () => (
-  <View className="absolute inset-0 bg-black/60 flex justify-center items-center z-50">
-    <ActivityIndicator size="large" color="#00ffe1" />
-    <Text className="mt-3 text-[#00ffe1] text-xl font-semibold">
-      Processing…
-    </Text>
-    <Text className="text-white/70 text-sm mt-1">
-      Please wait while we prepare your listing
-    </Text>
-  </View>
 
-);
 
 
   return (
