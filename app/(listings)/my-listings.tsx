@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 export default function MyListingsScreen() {
-  const [selectedTab, setSelectedTab] = useState('active');
+  const [selectedTab, setSelectedTab] = useState('all');
 
   const {user} =  useAuth();
   const {myListings, refetchMyListings, refetchListings, refetchRecentListings, isLoading, setIsLoading} = useListing()
@@ -100,6 +100,10 @@ export default function MyListingsScreen() {
     </View>
   );
 
+  const filteredListings = selectedTab === 'all' 
+    ? myListings 
+    : myListings.filter((item: any) => item.category.toLowerCase() === selectedTab);
+
  
 
   return (
@@ -155,7 +159,7 @@ export default function MyListingsScreen() {
         renderEmptyState()
       ) : (
         <FlatList
-          data={myListings}
+          data={filteredListings}
           renderItem={({ item }) => <ListingCard  profile={true} item={item} width={'100%'} handleDelete={handleDelete} />}          
           keyExtractor={(item: any) => item._id}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}

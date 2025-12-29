@@ -45,9 +45,6 @@ export default function EditListingScreen() {
         setName(listing?.roommateName || '')
         setGender(listing?.gender || '')
         setService(listing?.service || '')
-        
-
-        
     }
   },[listing])
   
@@ -108,10 +105,10 @@ export default function EditListingScreen() {
   ? schools.find((s: any) => s.school === user.school)?.campuses || []
   : [];
 
-  const handleImagePicker = () => {
-    // This would integrate with expo-image-picker
-    Alert.alert('Image Picker', 'Image picker would open here');
-  };
+  // const handleImagePicker = () => {
+  //   // This would integrate with expo-image-picker
+  //   Alert.alert('Image Picker', 'Image picker would open here');
+  // };
 
   const handleSubmit = () => {
     if (!category || !AccommodationTitle || !description || !price || !campus) {
@@ -703,7 +700,7 @@ export default function EditListingScreen() {
 
           
           {/* Images */}
-          <View className="mb-6">
+          {/* <View className="mb-6">
             <Text className="text-lg font-bold mb-3">Photos (Optional)</Text>
             <TouchableOpacity
               onPress={handleImagePicker}
@@ -714,7 +711,7 @@ export default function EditListingScreen() {
               <Text className="text-gray-500 mt-3 font-semibold">Add Photos</Text>
               <Text className="text-gray-400 text-sm mt-1">Up to 5 images</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
 
           {/* Description */}
           <View className="mb-6">
