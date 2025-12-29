@@ -16,7 +16,6 @@ export default function SavedScreen() {
   const [selectedTab, setSelectedTab] = useState('all');
   const {savedListings, listings} = useListing();
   const { user } = useAuth()
-  const userSchool = user?.school;
   
 const favouriteListings = listings.filter(listing =>
   savedListings.some((fav:any) => fav.listingId === listing._id)
@@ -102,7 +101,7 @@ console.log('dattta',favouriteListings)
         <View className="bg-white/20 rounded-full px-4 py-2 self-start">
           <View className="flex-row items-center">
             <Ionicons name="school" size={14} color="white" />
-            <Text className="text-white font-semibold ml-2 text-sm">{userSchool}</Text>
+            <Text className="text-white font-semibold ml-2 text-sm">{user?.school}</Text>
           </View>
         </View>
       </View>
